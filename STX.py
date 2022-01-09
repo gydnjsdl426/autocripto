@@ -82,8 +82,8 @@ while True:
                 if krw > 5000 and stx == 0 :
                     upbit.buy_market_order("KRW-STX", total*0.1665)
         else:   
-            if stx > 0.00008:
-                upbit.sell_market_order("KRW-STX", stx)
+            if stx > 0:
+                upbit.sell_market_order("KRW-STX", get_balance("STX"))
         time.sleep(1)
     except Exception as e:
         print(e)
