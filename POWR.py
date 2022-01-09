@@ -82,8 +82,8 @@ while True:
                 if krw > 5000 and powr == 0:
                     upbit.buy_market_order("KRW-POWR", total*0.1665)
         else:
-            if powr > 0.00008:
-                upbit.sell_market_order("KRW-POWR", powr)
+            if powr > 0:
+                upbit.sell_market_order("KRW-POWR", get_balance("POWR"))
         time.sleep(1)
     except Exception as e:
         print(e)
