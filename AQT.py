@@ -83,7 +83,7 @@ while True:
                     upbit.buy_market_order("KRW-AQT", total*0.1665)
         else:
             if aqt > 0.00008:
-                upbit.sell_market_order("KRW-AQT", aqt)
+                upbit.sell_market_order("KRW-AQT", get_balance("AQT"))
         time.sleep(1)
     except Exception as e:
         print(e)
