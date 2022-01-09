@@ -84,8 +84,8 @@ while True:
                     upbit.buy_market_order("KRW-MATIC", total*0.1665)
         else:
             
-            if matic > 0.00008:
-                upbit.sell_market_order("KRW-MATIC", matic)
+            if matic > 0:
+                upbit.sell_market_order("KRW-MATIC", get_balance("MATIC"))
         time.sleep(1)
     except Exception as e:
         print(e)
