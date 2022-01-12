@@ -59,7 +59,8 @@ def predict_price(ticker, num):
     #자정 이후
     if len(closeDf) == 0:
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour = 9)]
-    predicted_close_price[num] = closeDf['yhat'].values[0]
+    closeValue = closeDf['yhat'].values[0]
+    predicted_close_price[num] = closeValue
 
 schedule.every().minute.do(lambda: predict_price("KRW-MATIC"), 0)
 schedule.every().minute.do(lambda: predict_price("KRW-AQT"), 1)
