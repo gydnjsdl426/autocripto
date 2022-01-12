@@ -1,5 +1,4 @@
 import time
-from pandas._libs.tslibs import Minute
 import pyupbit
 import datetime
 import schedule
