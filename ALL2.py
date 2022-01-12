@@ -52,15 +52,14 @@ def predict_price(ticker, num):
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
-    future = model.make_future_dataframe(periods=60, freq = 'min')
+    future = model.make_future_dataframe(periods=60, freq = 'min', count =1440)
     forecast = model.predict(future)
     #현재시간 자정 이전
     closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds'].replace(hour = 9)]
     #자정 이후
     if len(closeDf) == 0:
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour = 9)]
-    closeValue = closeDf['yhat'].values[0]
-    predicted_close_price[num] = closeValue
+    predicted_close_price[num] = closeDf['yhat'].values[0]
 
 schedule.every().minute.do(lambda: predict_price("KRW-MATIC"), 0)
 schedule.every().minute.do(lambda: predict_price("KRW-AQT"), 1)
