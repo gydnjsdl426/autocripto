@@ -3,6 +3,7 @@ import pyupbit
 import datetime
 import schedule
 from fbprophet import Prophet
+from pytz import timezone, utc
 
 access = "KHTqX6NbkdKaY7saJo40FCjRF8zhLvB2WkADnajD"
 secret = "vIIe18R6kquGERglLWfKSC5UxKxfQA6DP4rq2UWc"
@@ -41,6 +42,12 @@ def get_ma15(ticker):
     ma5=df['close'].rolling(5).mean().iloc[-1]
     return ma15 <= ma5 * 1.1
 
+KST=timezone('Asia/Seoul')
+now =datetime.datetime.utcnow()
+utc.localize(now)
+KST.localize(now)
+utc.localize(now).astimezone(KST)
+
 predicted_close_price = [0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
@@ -55,10 +62,10 @@ def predict_price(ticker, num):
     future = model.make_future_dataframe(periods=60, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
-    closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds'].replace(hour = 9)]
+    closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds']]
     #자정 이후
     if len(closeDf) == 0:
-        closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour = 9)]
+        closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds']]
     predicted_close_price[num] = closeDf['yhat'].values[0]
 
 schedule.every().minute.do(lambda: predict_price("KRW-MATIC"), 0)
@@ -89,7 +96,7 @@ def startGamble(name, num):
             if target_price < current_price and current_price < predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.32)
         
-        elif upbit.get_avg_buy_price(name) * 0.97 > current_price or upbit.get_avg_buy_price(name) * 1.3 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.025 < current_price):
+        elif upbit.get_avg_buy_price(name) * 0.965 > current_price or upbit.get_avg_buy_price(name) * 1.3 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.03 < current_price):
             upbit.sell_market_order(name, get_balance(tick))
 
     except Exception as e:
