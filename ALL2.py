@@ -1,4 +1,5 @@
 import time
+from pandas._libs.tslibs import Minute
 import pyupbit
 import datetime
 import schedule
@@ -44,23 +45,21 @@ predicted_close_price = [0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
     global predicted_close_price
-    df = pyupbit.get_ohlcv(ticker, interval="mintue60",count = 504)
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", count = 1440)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
-    future = model.make_future_dataframe(periods=1, freq='H')
-    model.make_furue
+    future = model.make_future_dataframe(periods=60, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
-    closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds'].replace(hour=9)]
+    closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds'].replace(hour = 9)]
     #자정 이후
     if len(closeDf) == 0:
-        closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour=9)]
-    closeValue = closeDf['yhat'].values[0]
-    predicted_close_price[num] = closeValue
+        closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour = 9)]
+    predicted_close_price[num] = closeDf['yhat'].values[0]
 
 schedule.every().minute.do(lambda: predict_price("KRW-MATIC"), 0)
 schedule.every().minute.do(lambda: predict_price("KRW-AQT"), 1)
