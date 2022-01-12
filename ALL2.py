@@ -68,12 +68,12 @@ def predict_price(ticker, num):
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds']]
     predicted_close_price[num] = closeDf['yhat'].values[0]
 
-schedule.every().minute.do(lambda: predict_price("KRW-MATIC"), 0)
-schedule.every().minute.do(lambda: predict_price("KRW-AQT"), 1)
-schedule.every().minute.do(lambda: predict_price("KRW-ETH"), 2)
-schedule.every().minute.do(lambda: predict_price("KRW-POWR"), 3)
-schedule.every().minute.do(lambda: predict_price("KRW-STX"), 4)
-schedule.every().minute.do(lambda: predict_price("KRW-XRP"), 5)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-MATIC"), 0)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-AQT"), 1)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-ETH"), 2)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-POWR"), 3)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-STX"), 4)
+schedule.every(3).minutes.do(lambda: predict_price("KRW-XRP"), 5)
 
 def getTotal():
     aqt = get_balance("AQT") * get_current_price("AQT")
