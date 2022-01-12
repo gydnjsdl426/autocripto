@@ -38,20 +38,21 @@ def get_ma15(ticker):
     """15일 이동 평균선 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="day", count=15)
     ma15 = df['close'].rolling(15).mean().iloc[-1]
-    return ma15
+    ma5=df['close'].rolling(5).mean().iloc[-1]
+    return ma15 <= ma5 * 1.1
 
 predicted_close_price = [0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
     global predicted_close_price
-    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", count = 1440)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
-    future = model.make_future_dataframe(periods=60, freq = 'min', count =1440)
+    future = model.make_future_dataframe(periods=60, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
     closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds'].replace(hour = 9)]
@@ -85,7 +86,7 @@ def startGamble(name, num):
         total = getTotal()
         myprice = None
         if get_balance(tick) == 0:
-            if target_price < current_price and current_price < predicted_close_price[num] and get_ma15(name) < current_price and krw > 5000:
+            if target_price < current_price and current_price < predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.1665)
         
         elif upbit.get_avg_buy_price(name) * 0.965 > current_price or upbit.get_avg_buy_price(name) * 1.3 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.03 < current_price):
