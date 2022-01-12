@@ -68,12 +68,19 @@ def predict_price(ticker, num):
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds']]
     predicted_close_price[num] = closeDf['yhat'].values[0]
 
-schedule.every(3).minutes.do(lambda: predict_price("KRW-MATIC"), 0)
-schedule.every(3).minutes.do(lambda: predict_price("KRW-AQT"), 1)
-schedule.every(3).minutes.do(lambda: predict_price("KRW-ETH"), 2)
-schedule.every(3).minutes.do(lambda: predict_price("KRW-POWR"), 3)
-schedule.every(3).minutes.do(lambda: predict_price("KRW-STX"), 4)
-schedule.every(3).minutes.do(lambda: predict_price("KRW-XRP"), 5)
+predict_price("KRW-MATIC",0)
+predict_price("KRW-AQT",1)
+predict_price("KRW-ETH",2)
+predict_price("KRW-POWR",3)
+predict_price("KRW-STX",4)
+predict_price("KRW-XRP",5)
+
+schedule.every(3).minutes.do(predict_price, "KRW-MATIC", 0)
+schedule.every(3).minutes.do(predict_price,"KRW-AQT", 1)
+schedule.every(3).minutes.do(predict_price, "KRW-ETH", 2)
+schedule.every(3).minutes.do(predict_price,"KRW-POWR", 3)
+schedule.every(3).minutes.do(predict_price,"KRW-STX", 4)
+schedule.every(3).minutes.do(predict_price,"KRW-XRP", 5)
 
 def getTotal():
     aqt = get_balance("AQT") * get_current_price("KRW-AQT")
@@ -89,9 +96,10 @@ def startGamble(name, num):
         tick=name[4:]
         target_price = get_target_price(name, 0.2)
         current_price = get_current_price(name)
+        #print(target_price, current_price)
         krw = get_balance("KRW")
         total = getTotal()
-        
+        print(predicted_close_price)
         if get_balance(tick) == 0:
             if target_price < current_price and current_price < predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.32)
@@ -109,6 +117,7 @@ print("autotrade start")
 
 # 자동매매 시작
 while True:
+    schedule.run_pending()
     startGamble("KRW-MATIC", 0)
     startGamble("KRW-AQT", 1)
     startGamble("KRW-ETH" ,2)
