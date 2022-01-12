@@ -87,7 +87,6 @@ def getTotal():
 def startGamble(name, num):
     try:
         tick=name[4:]
-        print(tick)
         target_price = get_target_price(name, 0.2)
         current_price = get_current_price(name)
         krw = get_balance("KRW")
@@ -99,8 +98,6 @@ def startGamble(name, num):
         
         elif upbit.get_avg_buy_price(name) * 0.965 > current_price or upbit.get_avg_buy_price(name) * 1.3 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.03 < current_price):
             upbit.sell_market_order(name, get_balance(tick))
-        
-        time.sleep(1)
 
     except Exception as e:
         print(e)
