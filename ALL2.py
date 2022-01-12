@@ -76,28 +76,31 @@ schedule.every(3).minutes.do(lambda: predict_price("KRW-STX"), 4)
 schedule.every(3).minutes.do(lambda: predict_price("KRW-XRP"), 5)
 
 def getTotal():
-    aqt = get_balance("AQT") * get_current_price("AQT")
-    matic = get_balance("MATIC") * get_current_price("MATIC")
-    eth = get_balance("ETH") * get_current_price("ETH")
-    powr = get_balance("POWR") * get_current_price("POWR")
-    stx = get_balance("STX") * get_current_price("STX")
-    xrp = get_balance("XRP") * get_current_price("XRP")
+    aqt = get_balance("AQT") * get_current_price("KRW-AQT")
+    matic = get_balance("MATIC") * get_current_price("KRW-MATIC")
+    eth = get_balance("ETH") * get_current_price("KRW-ETH")
+    powr = get_balance("POWR") * get_current_price("KRW-POWR")
+    stx = get_balance("STX") * get_current_price("KRW-STX")
+    xrp = get_balance("XRP") * get_current_price("KRW-XRP")
     return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp
 
 def startGamble(name, num):
     try:
         tick=name[4:]
+        print(tick)
         target_price = get_target_price(name, 0.2)
         current_price = get_current_price(name)
         krw = get_balance("KRW")
         total = getTotal()
-        myprice = None
+        
         if get_balance(tick) == 0:
             if target_price < current_price and current_price < predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.32)
         
         elif upbit.get_avg_buy_price(name) * 0.965 > current_price or upbit.get_avg_buy_price(name) * 1.3 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.03 < current_price):
             upbit.sell_market_order(name, get_balance(tick))
+        
+        time.sleep(1)
 
     except Exception as e:
         print(e)
