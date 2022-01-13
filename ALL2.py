@@ -59,7 +59,7 @@ def predict_price(ticker, num):
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
-    future = model.make_future_dataframe(periods=60, freq = 'min')
+    future = model.make_future_dataframe(periods=90, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
     closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds']]
@@ -101,10 +101,10 @@ def startGamble(name, num):
         total = getTotal()
         print(predicted_close_price)
         if get_balance(tick) == 0:
-            if target_price <= current_price and current_price * 1.03 <= predicted_close_price[num] and get_ma15(name) and krw > 5000 and current_price < target_price * 1.07:
+            if target_price <= current_price and current_price * 1.022 <= predicted_close_price[num] and get_ma15(name) and krw > 5000 and current_price < target_price * 1.07:
                 upbit.buy_market_order(name, total*0.32)
         
-        elif upbit.get_avg_buy_price(name) * 0.97 > current_price or upbit.get_avg_buy_price(name) * 1.25 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.025 < current_price) or current_price <= target_price * 0.955 or predict_price <= current_price * 0.95:
+        elif upbit.get_avg_buy_price(name) * 1.25 < current_price or (predicted_close_price[num] < current_price and (upbit.get_avg_buy_price(name) * 1.025 < current_price or upbit.get_avg_buy_price(name) * 0.975 > current_price)) or current_price <= target_price * 0.965 or predict_price <= current_price * 0.975:
             upbit.sell_market_order(name, get_balance(tick))
 
     except Exception as e:
