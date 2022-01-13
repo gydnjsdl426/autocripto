@@ -104,7 +104,7 @@ def startGamble(name, num):
             if target_price <= current_price and current_price * 1.03 <= predicted_close_price[num] and get_ma15(name) and krw > 5000 and current_price < target_price * 1.07:
                 upbit.buy_market_order(name, total*0.32)
         
-        elif upbit.get_avg_buy_price(name) * 0.97 > current_price or upbit.get_avg_buy_price(name) * 1.25 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.025 < current_price) or current_price <= target_price * 0.96 or predict_price <= current_price * 0.95:
+        elif upbit.get_avg_buy_price(name) * 0.97 > current_price or upbit.get_avg_buy_price(name) * 1.25 < current_price or (predicted_close_price[num] < current_price and upbit.get_avg_buy_price(name) * 1.025 < current_price) or current_price <= target_price * 0.955 or predict_price <= current_price * 0.95:
             upbit.sell_market_order(name, get_balance(tick))
 
     except Exception as e:
