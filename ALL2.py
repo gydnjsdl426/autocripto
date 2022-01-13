@@ -48,7 +48,7 @@ utc.localize(now)
 KST.localize(now)
 utc.localize(now).astimezone(KST)
 
-predicted_close_price = [0,0,0,0,0,0]
+predicted_close_price = [0,0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
     global predicted_close_price
@@ -74,6 +74,7 @@ predict_price("KRW-ETH",2)
 predict_price("KRW-POWR",3)
 predict_price("KRW-STX",4)
 predict_price("KRW-XRP",5)
+predict_price("KRW-DOGE",6)
 
 schedule.every(3).minutes.do(predict_price, "KRW-MATIC", 0)
 schedule.every(3).minutes.do(predict_price,"KRW-AQT", 1)
@@ -81,6 +82,7 @@ schedule.every(3).minutes.do(predict_price, "KRW-ETH", 2)
 schedule.every(3).minutes.do(predict_price,"KRW-POWR", 3)
 schedule.every(3).minutes.do(predict_price,"KRW-STX", 4)
 schedule.every(3).minutes.do(predict_price,"KRW-XRP", 5)
+schedule.every(3).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
     aqt = get_balance("AQT") * get_current_price("KRW-AQT")
@@ -89,17 +91,16 @@ def getTotal():
     powr = get_balance("POWR") * get_current_price("KRW-POWR")
     stx = get_balance("STX") * get_current_price("KRW-STX")
     xrp = get_balance("XRP") * get_current_price("KRW-XRP")
-    return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp
+    doge = get_balance("DOGE") * get_current_price("KRW-DOGE")
+    return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
 
 def startGamble(name, num):
     try:
         tick=name[4:]
         target_price = get_target_price(name, 0.2)
         current_price = get_current_price(name)
-        #print(target_price, current_price)
         krw = get_balance("KRW")
         total = getTotal()
-        print(predicted_close_price)
         if get_balance(tick) == 0:
             if target_price <= current_price and current_price * 1.022 <= predicted_close_price[num] and get_ma15(name) and krw > 5000 and current_price < target_price * 1.07:
                 upbit.buy_market_order(name, total*0.32)
@@ -113,7 +114,6 @@ def startGamble(name, num):
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
-print("autotrade start")
 
 # 자동매매 시작
 while True:
@@ -124,4 +124,5 @@ while True:
     startGamble("KRW-POWR", 3)
     startGamble("KRW-STX", 4)
     startGamble("KRW-XRP", 5)
+    startGamble("KRW-DOGE", 6)
     
