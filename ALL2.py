@@ -99,12 +99,10 @@ def startGamble(name, num):
         tick=name[4:]
         target_price = get_target_price(name, 0.2)
         current_price = get_current_price(name)
-        #print(target_price, current_price)
         krw = get_balance("KRW")
         total = getTotal()
-        print(predicted_close_price)
         if get_balance(tick) == 0:
-            if target_price <= current_price and current_price * 1.018 <= predicted_close_price[num] and get_ma15(name) and krw > 5000 and current_price <= target_price * 1.07:
+            if target_price <= current_price and current_price * 1.018 <= predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.32)
         
         elif ( predicted_close_price[num] <= current_price * 0.98 and upbit.get_avg_buy_price(name) * 0.975 >= current_price) or upbit.get_avg_buy_price(name) * 1.25 <= current_price or (predicted_close_price[num] <= current_price * 0.98 and upbit.get_avg_buy_price(name) * 1.025 <= current_price) or current_price <= target_price * 0.965 or predict_price <= current_price * 0.975:
@@ -116,7 +114,6 @@ def startGamble(name, num):
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
-print("autotrade start")
 
 # 자동매매 시작
 while True:
