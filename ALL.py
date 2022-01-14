@@ -62,7 +62,6 @@ def getTotal():
     powr = get_balance("POWR") * get_current_price("POWR")
     stx = get_balance("STX") * get_current_price("STX")
     xrp = get_balance("XRP") * get_current_price("XRP")
-    print("aa")
     return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp
 
 def startGamble(name):
