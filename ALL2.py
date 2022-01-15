@@ -60,7 +60,7 @@ def predict_price(ticker, num):
     model = Prophet()
     model.fit(data)
     model.component_modes
-    future = model.make_future_dataframe(periods=90, freq = 'min')
+    future = model.make_future_dataframe(periods=24, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
     closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds']]
@@ -105,7 +105,7 @@ def startGamble(name, num):
         print(predicted_close_price)
         if get_balance(tick) == 0:
             if current_price * 1.01 <= predicted_close_price[num] and get_ma15(name) and krw > 5000:
-                upbit.buy_market_order(name, total*0.32)
+                upbit.buy_market_order(name, total*0.33)
         
         elif upbit.get_avg_buy_price(name) * 0.975 >= current_price or upbit.get_avg_buy_price(name) * 1.25 <= current_price or (predicted_close_price[num] <= current_price * 0.99 and upbit.get_avg_buy_price(name) * 1.015 <= current_price) or predict_price <= current_price * 0.98:
             upbit.sell_market_order(name, get_balance(tick))
