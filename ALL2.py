@@ -54,12 +54,12 @@ predicted_cur_price=[0,0,0,0,0,0,0]
 predicted_close_price = [0,0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute5", count = 864)
+    df = pyupbit.get_ohlcv(ticker, interval="minute3", count = 960)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
-    model = Prophet(daily_seasonality=100)
+    model = Prophet(daily_seasonality=20)
     model.fit(data)
     future = model.make_future_dataframe(periods=120, freq = 'min')
     forecast = model.predict(future)
