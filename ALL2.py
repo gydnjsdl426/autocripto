@@ -52,13 +52,14 @@ predicted_close_price = [0,0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
     global predicted_close_price
-    df = pyupbit.get_ohlcv(ticker, interval="minute1", count = 1440)
+    df = pyupbit.get_ohlcv(ticker, interval="minute5", count = 864)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
+    model.component_modes
     future = model.make_future_dataframe(periods=90, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
@@ -76,13 +77,13 @@ predict_price("KRW-STX",4)
 predict_price("KRW-XRP",5)
 predict_price("KRW-DOGE",6)
 
-schedule.every(3).minutes.do(predict_price, "KRW-MATIC", 0)
-schedule.every(3).minutes.do(predict_price,"KRW-AQT", 1)
-schedule.every(3).minutes.do(predict_price, "KRW-ETH", 2)
-schedule.every(3).minutes.do(predict_price,"KRW-POWR", 3)
-schedule.every(3).minutes.do(predict_price,"KRW-STX", 4)
-schedule.every(3).minutes.do(predict_price,"KRW-XRP", 5)
-schedule.every(3).minutes.do(predict_price,"KRW-DOGE", 6)
+schedule.every(10).minutes.do(predict_price, "KRW-MATIC", 0)
+schedule.every(10).minutes.do(predict_price,"KRW-AQT", 1)
+schedule.every(10).minutes.do(predict_price, "KRW-ETH", 2)
+schedule.every(10).minutes.do(predict_price,"KRW-POWR", 3)
+schedule.every(10).minutes.do(predict_price,"KRW-STX", 4)
+schedule.every(10).minutes.do(predict_price,"KRW-XRP", 5)
+schedule.every(10).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
     aqt = get_balance("AQT") * get_current_price("KRW-AQT")
@@ -97,13 +98,13 @@ def getTotal():
 def startGamble(name, num):
     try:
         tick=name[4:]
-        target_price = get_target_price(name, 0.2)
+        #target_price = get_target_price(name, 0.1)
         current_price = get_current_price(name)
         krw = get_balance("KRW")
         total = getTotal()
         print(predicted_close_price)
         if get_balance(tick) == 0:
-            if target_price <= current_price and current_price * 1.01 <= predicted_close_price[num] and get_ma15(name) and krw > 5000:
+            if current_price * 1.01 <= predicted_close_price[num] and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.32)
         
         elif upbit.get_avg_buy_price(name) * 0.975 >= current_price or upbit.get_avg_buy_price(name) * 1.25 <= current_price or (predicted_close_price[num] <= current_price * 0.99 and upbit.get_avg_buy_price(name) * 1.015 <= current_price) or predict_price <= current_price * 0.98:
