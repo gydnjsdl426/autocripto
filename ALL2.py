@@ -48,16 +48,16 @@ utc.localize(now)
 KST.localize(now)
 utc.localize(now).astimezone(KST)
 
+predicted_min_price=[0,0,0,0,0,0,0]
 predicted_close_price = [0,0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
-    global predicted_close_price
     df = pyupbit.get_ohlcv(ticker, interval="minute5", count = 864)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
-    model = Prophet()
+    model = Prophet(daily_seasonality=50)
     model.fit(data)
     future = model.make_future_dataframe(periods=120, freq = 'min')
     forecast = model.predict(future)
@@ -67,6 +67,7 @@ def predict_price(ticker, num):
     if len(closeDf) == 0:
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds']]
     predicted_close_price[num] = closeDf['yhat'].values[0]
+    predicted_min_price[num]=min(forecast['daily'])
 
 predict_price("KRW-MATIC",0)
 predict_price("KRW-AQT",1)
@@ -103,7 +104,7 @@ def startGamble(name, num):
         total = getTotal()
         print(predicted_close_price)
         if get_balance(tick) == 0:
-            if current_price * 1.01 <= predicted_close_price[num] and get_ma15(name) and krw > 5000:
+            if (predicted_min_price[num] * 1.01 > current_price or current_price*1.01 <= predicted_close_price[num]) and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.33)
         
         elif upbit.get_avg_buy_price(name) * 0.975 >= current_price or upbit.get_avg_buy_price(name) * 1.25 <= current_price or (predicted_close_price[num] <= current_price * 0.99 and upbit.get_avg_buy_price(name) * 1.015 <= current_price) or predict_price <= current_price * 0.98:
