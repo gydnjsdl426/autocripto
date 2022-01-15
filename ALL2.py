@@ -59,7 +59,6 @@ def predict_price(ticker, num):
     data = df[['ds','y']]
     model = Prophet()
     model.fit(data)
-    model.component_modes
     future = model.make_future_dataframe(periods=120, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
