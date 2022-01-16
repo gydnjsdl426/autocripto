@@ -78,16 +78,16 @@ predict_price("KRW-AQT",1)
 predict_price("KRW-ETH",2)
 predict_price("KRW-POWR",3)
 predict_price("KRW-STX",4)
-predict_price("KRW-XRP",5)
+predict_price("KRW-BTT",5)
 predict_price("KRW-DOGE",6)
 
-schedule.every(10).minutes.do(predict_price, "KRW-MATIC", 0)
-schedule.every(10).minutes.do(predict_price,"KRW-AQT", 1)
-schedule.every(10).minutes.do(predict_price, "KRW-ETH", 2)
-schedule.every(10).minutes.do(predict_price,"KRW-POWR", 3)
-schedule.every(10).minutes.do(predict_price,"KRW-STX", 4)
-schedule.every(10).minutes.do(predict_price,"KRW-XRP", 5)
-schedule.every(10).minutes.do(predict_price,"KRW-DOGE", 6)
+schedule.every(5).minutes.do(predict_price, "KRW-MATIC", 0)
+schedule.every(5).minutes.do(predict_price,"KRW-AQT", 1)
+schedule.every(5).minutes.do(predict_price, "KRW-ETH", 2)
+schedule.every(5).minutes.do(predict_price,"KRW-POWR", 3)
+schedule.every(5).minutes.do(predict_price,"KRW-STX", 4)
+schedule.every(5).minutes.do(predict_price,"KRW-BTT", 5)
+schedule.every(5).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
     aqt = get_balance("AQT") * get_current_price("KRW-AQT")
@@ -95,9 +95,9 @@ def getTotal():
     eth = get_balance("ETH") * get_current_price("KRW-ETH")
     powr = get_balance("POWR") * get_current_price("KRW-POWR")
     stx = get_balance("STX") * get_current_price("KRW-STX")
-    xrp = get_balance("XRP") * get_current_price("KRW-XRP")
+    btt = get_balance("BTT") * get_current_price("KRW-BTT")
     doge = get_balance("DOGE") * get_current_price("KRW-DOGE")
-    return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
+    return get_balance("KRW")+aqt+matic+eth+powr+stx+btt+doge
 
 def startGamble(name, num):
     try:
@@ -131,6 +131,6 @@ while True:
     startGamble("KRW-ETH" ,2)
     startGamble("KRW-POWR", 3)
     startGamble("KRW-STX", 4)
-    startGamble("KRW-XRP", 5)
+    startGamble("KRW-BTT", 5)
     startGamble("KRW-DOGE", 6)
     
