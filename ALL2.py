@@ -78,7 +78,7 @@ predict_price("KRW-AQT",1)
 predict_price("KRW-ETH",2)
 predict_price("KRW-POWR",3)
 predict_price("KRW-STX",4)
-predict_price("KRW-BTT",5)
+predict_price("KRW-XRP",5)
 predict_price("KRW-DOGE",6)
 
 schedule.every(5).minutes.do(predict_price, "KRW-MATIC", 0)
@@ -86,7 +86,7 @@ schedule.every(5).minutes.do(predict_price,"KRW-AQT", 1)
 schedule.every(5).minutes.do(predict_price, "KRW-ETH", 2)
 schedule.every(5).minutes.do(predict_price,"KRW-POWR", 3)
 schedule.every(5).minutes.do(predict_price,"KRW-STX", 4)
-schedule.every(5).minutes.do(predict_price,"KRW-BTT", 5)
+schedule.every(5).minutes.do(predict_price,"KRW-XRP", 5)
 schedule.every(5).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
@@ -95,9 +95,9 @@ def getTotal():
     eth = get_balance("ETH") * get_current_price("KRW-ETH")
     powr = get_balance("POWR") * get_current_price("KRW-POWR")
     stx = get_balance("STX") * get_current_price("KRW-STX")
-    btt = get_balance("BTT") * get_current_price("KRW-BTT")
+    xrp = get_balance("XRP") * get_current_price("KRW-XRP")
     doge = get_balance("DOGE") * get_current_price("KRW-DOGE")
-    return get_balance("KRW")+aqt+matic+eth+powr+stx+btt+doge
+    return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
 
 def startGamble(name, num):
     try:
@@ -108,10 +108,10 @@ def startGamble(name, num):
         total = getTotal()
         print(predicted_close_price)
         if get_balance(tick) == 0:
-            if (current_price * 1.02 <= predicted_close_price[num]) and get_ma15(name) and krw > 5000:
+            if (current_price * 1.025 <= predicted_close_price[num]) and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.33)
         
-        elif (upbit.get_avg_buy_price(name) * 0.98 >= current_price or upbit.get_avg_buy_price(name) * 1.20 <= current_price or (predicted_close_price[num] <= current_price * 0.995 and upbit.get_avg_buy_price(name) * 1.012 <= current_price) 
+        elif (upbit.get_avg_buy_price(name) * 0.98 >= current_price or upbit.get_avg_buy_price(name) * 1.20 <= current_price or (predicted_close_price[num] <= current_price * 0.995 and upbit.get_avg_buy_price(name) * 1.01 <= current_price) 
         or predict_price <= current_price * 0.985):
             upbit.sell_market_order(name, get_balance(tick))
 
@@ -131,6 +131,6 @@ while True:
     startGamble("KRW-ETH" ,2)
     startGamble("KRW-POWR", 3)
     startGamble("KRW-STX", 4)
-    startGamble("KRW-BTT", 5)
+    startGamble("KRW-XRP", 5)
     startGamble("KRW-DOGE", 6)
     
