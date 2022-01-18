@@ -8,33 +8,6 @@ from pytz import timezone, utc
 access = "KHTqX6NbkdKaY7saJo40FCjRF8zhLvB2WkADnajD"
 secret = "vIIe18R6kquGERglLWfKSC5UxKxfQA6DP4rq2UWc"
 
-def get_target_price(ticker, k):
-    """변동성 돌파 전략으로 매수 목표가 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="day", count=2)
-    target_price = df.iloc[0]['close'] + (df.iloc[0]['high'] - df.iloc[0]['low']) * k
-    return target_price
-
-def get_start_time(ticker):
-    """시작 시간 조회"""
-    df = pyupbit.get_ohlcv(ticker, interval="day", count=1)
-    start_time = df.index[0]
-    return start_time
-
-def get_balance(ticker):
-    """잔고 조회"""
-    balances = upbit.get_balances()
-    for b in balances:
-        if b['currency'] == ticker:
-            if b['balance'] is not None:
-                return float(b['balance'])
-            else:
-                return 0
-    return 0
-
-def get_current_price(ticker):
-    """현재가 조회"""
-    return pyupbit.get_orderbook(ticker=ticker)["orderbook_units"][0]["ask_price"]
-
 def get_ma15(ticker):
     """15일 이동 평균선 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="day", count=15)
@@ -48,20 +21,17 @@ utc.localize(now)
 KST.localize(now)
 utc.localize(now).astimezone(KST)
 
-predicted_min_price=[0,0,0,0,0,0,0]
-predicted_max_price=[0,0,0,0,0,0,0]
-predicted_cur_price=[0,0,0,0,0,0,0]
 predicted_close_price = [0,0,0,0,0,0,0]
 def predict_price(ticker, num):
     """Prophet으로 당일 종가 가격 예측"""
-    df = pyupbit.get_ohlcv(ticker, interval="minute3", count = 960)
+    df = pyupbit.get_ohlcv(ticker, interval="minute3", count = 1200)
     df = df.reset_index()
     df['ds'] = df['index']
     df['y'] = df['close']
     data = df[['ds','y']]
     model = Prophet(daily_seasonality=20)
     model.fit(data)
-    future = model.make_future_dataframe(periods=120, freq = 'min')
+    future = model.make_future_dataframe(periods=99, freq = 'min')
     forecast = model.predict(future)
     #현재시간 자정 이전
     closeDf = forecast[forecast['ds'] == forecast.iloc[-1]['ds']]
@@ -69,9 +39,6 @@ def predict_price(ticker, num):
     if len(closeDf) == 0:
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds']]
     predicted_close_price[num] = closeDf['yhat'].values[0]
-    predicted_cur_price[num]=forecast['daily'][0]
-    if predicted_min_price[num] > min(forecast['daily']): predicted_min_price[num] = min(forecast['daily'])
-    if predicted_max_price[num] < max(forecast['daily']): predicted_max_price[num] = max(forecast['daily'])
 
 predict_price("KRW-MATIC",0)
 predict_price("KRW-AQT",1)
@@ -90,29 +57,30 @@ schedule.every(5).minutes.do(predict_price,"KRW-XRP", 5)
 schedule.every(5).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
-    aqt = get_balance("AQT") * get_current_price("KRW-AQT")
-    matic = get_balance("MATIC") * get_current_price("KRW-MATIC")
-    eth = get_balance("ETH") * get_current_price("KRW-ETH")
-    powr = get_balance("POWR") * get_current_price("KRW-POWR")
-    stx = get_balance("STX") * get_current_price("KRW-STX")
-    xrp = get_balance("XRP") * get_current_price("KRW-XRP")
-    doge = get_balance("DOGE") * get_current_price("KRW-DOGE")
-    return get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
+    aqt = upbit.get_balance("KRW-AQT") * upbit.get_avg_buy_price("KRW-AQT")
+    matic = upbit.get_balance("KRW-MATIC") * upbit.get_avg_buy_price("KRW-MATIC")
+    eth = upbit.get_balance("KRW-ETH") * upbit.get_avg_buy_price("KRW-ETH")
+    powr = upbit.get_balance("KRW-POWR") * upbit.get_avg_buy_price("KRW-POWR")
+    stx = upbit.get_balance("KRW-STX") * upbit.get_avg_buy_price("KRW-STX")
+    xrp = upbit.get_balance("KRW-XRP") * upbit.get_avg_buy_price("KRW-XRP")
+    doge = upbit.get_balance("KRW-DOGE") * upbit.get_avg_buy_price("KRW-DOGE")
+    return upbit.get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
 
-def startGamble(name, num):
+def startGamble(name):
     try:
-        tick=name[4:]
-        #target_price = get_target_price(name, 0.1)
-        current_price = get_current_price(name)
-        krw = get_balance("KRW")
+        current_price = pyupbit.get_current_price(name)
+        krw = upbit.get_balance("KRW")
         total = getTotal()
-        print(predicted_close_price)
-        if get_balance(tick) == 0:
-            if (current_price * 1.025 <= predicted_close_price[num]) and get_ma15(name) and krw > 5000:
-                upbit.buy_market_order(name, total*0.33)
+        i=0
+        for n in name:
+            if upbit.get_balance(n) == 0:
+                if (current_price[n] * 1.025 <= predicted_close_price[i]) and get_ma15(n) and krw > 5000:
+                    upbit.buy_market_order(n, total*0.33)
         
-        elif (upbit.get_avg_buy_price(name) * 0.98 >= current_price or (predicted_close_price[num] <= current_price * 0.995 and upbit.get_avg_buy_price(name) * 1.01 <= current_price) or predict_price <= current_price * 0.99):
-            upbit.sell_market_order(name, get_balance(tick))
+            elif (upbit.get_avg_buy_price(n) * 0.98 >= current_price[n] or (predicted_close_price[i] <= current_price[n] * 0.995 and upbit.get_avg_buy_price(n) * 1.01 <= current_price[n]) or predicted_close_price[i] <= current_price[n] * 0.99):
+                upbit.sell_market_order(n, upbit.get_balance(n))
+
+            i=i+1
 
     except Exception as e:
         print(e)
@@ -120,16 +88,9 @@ def startGamble(name, num):
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
-print("autotrade start")
 
 # 자동매매 시작
 while True:
     schedule.run_pending()
-    startGamble("KRW-MATIC", 0)
-    startGamble("KRW-AQT", 1)
-    startGamble("KRW-ETH" ,2)
-    startGamble("KRW-POWR", 3)
-    startGamble("KRW-STX", 4)
-    startGamble("KRW-XRP", 5)
-    startGamble("KRW-DOGE", 6)
+    startGamble(["KRW-MATIC","KRW-AQT","KRW-ETH","KRW-POWR","KRW-STX","KRW-XRP","KRW-DOGE"])
     
