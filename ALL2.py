@@ -40,7 +40,7 @@ def get_ma15(ticker):
     df = pyupbit.get_ohlcv(ticker, interval="day", count=15)
     ma15 = df['close'].rolling(15).mean().iloc[-1]
     ma5=df['close'].rolling(5).mean().iloc[-1]
-    return ma15 <= ma5 * 1.1
+    return ma15 <= ma5 * 1.08
 
 KST=timezone('Asia/Seoul')
 now =datetime.datetime.utcnow()
@@ -111,8 +111,7 @@ def startGamble(name, num):
             if (current_price * 1.025 <= predicted_close_price[num]) and get_ma15(name) and krw > 5000:
                 upbit.buy_market_order(name, total*0.33)
         
-        elif (upbit.get_avg_buy_price(name) * 0.98 >= current_price or upbit.get_avg_buy_price(name) * 1.20 <= current_price or (predicted_close_price[num] <= current_price * 0.995 and upbit.get_avg_buy_price(name) * 1.01 <= current_price) 
-        or predict_price <= current_price * 0.985):
+        elif (upbit.get_avg_buy_price(name) * 0.98 >= current_price or (predicted_close_price[num] <= current_price * 0.995 and upbit.get_avg_buy_price(name) * 1.01 <= current_price) or predict_price <= current_price * 0.99):
             upbit.sell_market_order(name, get_balance(tick))
 
     except Exception as e:
