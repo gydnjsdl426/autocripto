@@ -67,18 +67,17 @@ def getTotal():
 
 def startGamble(name):
     try:
-        print(predicted_close_price)
+        print(predicted_max_price, '\n', predicted_min_price)
         current_price = pyupbit.get_current_price(name)
         krw = upbit.get_balance("KRW")
         total = getTotal()
         i=0
         for n in name:
             if upbit.get_balance(n) == 0:
-                if (current_price[n] < predicted_min_price[i] or current_price[n]*1.015 < predicted_max_price[i]) and get_ma15(n) and krw > 5000:
+                if (current_price[n] < predicted_min_price[i]*1.03 or current_price[n]*1.01 < predicted_max_price[i]) and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
-            elif ((predicted_min_price[i]*1.015 < current_price[n] and predicted_close_price[i] < current_price[n] and predicted_max_price[i] < current_price[n]*1.01) 
-            or current_price[n] > predicted_max_price[i]*0.995 or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
+            elif (current_price[n] > predicted_max_price[i]*0.997 or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
                 upbit.sell_market_order(n, upbit.get_balance(n))
 
             i=i+1
