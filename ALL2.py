@@ -33,7 +33,7 @@ def predict_price(ticker, num):
     data = df[['ds','y']]
     model = Prophet(daily_seasonality=10, interval_width=0.95, changepoint_range=1, changepoint_prior_scale=0.1)
     model.fit(data)
-    future = model.make_future_dataframe(periods=90, freq = 'min')
+    future = model.make_future_dataframe(periods=120, freq = 'min')
     forecast = model.predict(future)
     predicted_close_price[num] = forecast.iloc[-1]['yhat_lower']
     predicted_max_price[num] = forecast[1200:]['yhat_lower'].max()
@@ -47,13 +47,13 @@ predict_price("KRW-STX",4)
 predict_price("KRW-XRP",5)
 predict_price("KRW-DOGE",6)
 
-schedule.every(3).minutes.do(predict_price, "KRW-MATIC", 0)
-schedule.every(3).minutes.do(predict_price,"KRW-AQT", 1)
-schedule.every(3).minutes.do(predict_price, "KRW-ETH", 2)
-schedule.every(3).minutes.do(predict_price,"KRW-POWR", 3)
-schedule.every(3).minutes.do(predict_price,"KRW-STX", 4)
-schedule.every(3).minutes.do(predict_price,"KRW-XRP", 5)
-schedule.every(3).minutes.do(predict_price,"KRW-DOGE", 6)
+schedule.every(5).minutes.do(predict_price, "KRW-MATIC", 0)
+schedule.every(5).minutes.do(predict_price,"KRW-AQT", 1)
+schedule.every(5).minutes.do(predict_price, "KRW-ETH", 2)
+schedule.every(5).minutes.do(predict_price,"KRW-POWR", 3)
+schedule.every(5).minutes.do(predict_price,"KRW-STX", 4)
+schedule.every(5).minutes.do(predict_price,"KRW-XRP", 5)
+schedule.every(5).minutes.do(predict_price,"KRW-DOGE", 6)
 
 def getTotal():
     aqt = upbit.get_balance("KRW-AQT") * upbit.get_avg_buy_price("KRW-AQT")
@@ -67,8 +67,8 @@ def getTotal():
 
 def startGamble(name):
     try:
-        print(predicted_max_price, '\n', predicted_min_price)
         current_price = pyupbit.get_current_price(name)   
+        print(name,'\n','Max: ',predicted_max_price, '\n' , 'Cur: ', current_price.keys(),'\n','Min: ', predicted_min_price)
         total = getTotal()
         i=0
         for n in name:
@@ -77,8 +77,8 @@ def startGamble(name):
                 if (current_price[n]*1.003 < predicted_min_price[i] or current_price[n]*1.01 < predicted_max_price[i]) and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
-            elif ((current_price[n] > predicted_min_price[i]*1.007 and current_price[n]*1.01 > predicted_max_price[i]) or
-                current_price[n]*1.003 > predicted_max_price[i] or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
+            elif ((current_price[n] > predicted_min_price[i]*1.01 and current_price[n]*1.01 > predicted_max_price[i]) or
+                current_price[n] > predicted_max_price[i] or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
                 upbit.sell_market_order(n, upbit.get_balance(n))
 
             i=i+1
