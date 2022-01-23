@@ -31,9 +31,9 @@ def predict_price(ticker, num):
     df['ds'] = df['index']
     df['y'] = df['low']
     data = df[['ds','y']]
-    model = Prophet(daily_seasonality=10, interval_width=0.95, changepoint_range=1, changepoint_prior_scale=0.1)
+    model = Prophet(daily_seasonality=10, interval_width=0.90, changepoint_range=0.95, changepoint_prior_scale=0.1)
     model.fit(data)
-    future = model.make_future_dataframe(periods=120, freq = 'min')
+    future = model.make_future_dataframe(periods=60, freq = 'min')
     forecast = model.predict(future)
     predicted_close_price[num] = forecast.iloc[-1]['yhat_lower']
     predicted_max_price[num] = forecast[1200:]['yhat_lower'].max()
@@ -74,7 +74,7 @@ def startGamble(name):
         for n in name:
             krw = upbit.get_balance("KRW")
             if upbit.get_balance(n) == 0:
-                if ((current_price[n]*0.995 < predicted_min_price[i] and current_price[n]*1.01 < predicted_max_price[i]) or current_price[n] < predicted_min_price[i]) and get_ma15(n) and krw > 5000:
+                if ((current_price[n]*0.993 < predicted_min_price[i] and current_price[n]*1.008 < predicted_max_price[i]) or current_price[n] < predicted_min_price[i]) and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
             elif ((upbit.get_avg_buy_price(n) * 1.008 > current_price[n] and current_price[n] > predicted_max_price[i])
