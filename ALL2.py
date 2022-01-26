@@ -35,9 +35,9 @@ def predict_price(ticker, num):
     model.fit(data)
     future = model.make_future_dataframe(periods=60, freq = 'min')
     forecast = model.predict(future)
-    predicted_close_price[num] = forecast.iloc[-1]['yhat_lower']
-    predicted_max_price[num] = forecast[1200:]['yhat_lower'].max()
-    predicted_min_price[num] = forecast[1200:]['yhat_lower'].min()
+    predicted_close_price[num] = forecast.iloc[-1]['yhat']
+    predicted_max_price[num] = forecast[1200:]['yhat'].max()
+    predicted_min_price[num] = forecast[1200:]['yhat'].min()
 
 predict_price("KRW-MATIC",0)
 predict_price("KRW-AQT",1)
@@ -77,7 +77,7 @@ def startGamble(name):
                 if current_price[n]*1.018 < predicted_max_price[i] and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
-            elif ((upbit.get_avg_buy_price(n) * 1.01 > current_price[n] and current_price[n]*1.005 > predicted_max_price[i])
+            elif ((upbit.get_avg_buy_price(n) * 1.01 > current_price[n] and current_price[n]*0.997 > predicted_min_price[i])
              or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
                 upbit.sell_market_order(n, upbit.get_balance(n))
 
