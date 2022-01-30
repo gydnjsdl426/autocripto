@@ -74,11 +74,11 @@ def startGamble(name):
         for n in name:
             krw = upbit.get_balance("KRW")
             if upbit.get_balance(n) == 0:
-                if current_price[n]*1.01 < predicted_max_price[i] and get_ma15(n) and krw > 5000:
+                if current_price[n]*1.011 < predicted_max_price[i] and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
-            elif ((upbit.get_avg_buy_price(n) * 1.008 < current_price[n] and current_price[n]*0.997 > predicted_min_price[i])
-             or upbit.get_avg_buy_price(n) * 0.985 > current_price[n]):
+            elif ((upbit.get_avg_buy_price(n) * 1.09 < current_price[n] and current_price[n]*0.997 > predicted_min_price[i])
+             or upbit.get_avg_buy_price(n) * 0.99 > current_price[n]):
                 upbit.sell_market_order(n, upbit.get_balance(n))
 
             i=i+1
