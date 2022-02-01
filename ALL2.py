@@ -5,8 +5,10 @@ import schedule
 from fbprophet import Prophet
 from pytz import timezone, utc
 
+
 access = "KHTqX6NbkdKaY7saJo40FCjRF8zhLvB2WkADnajD"
 secret = "vIIe18R6kquGERglLWfKSC5UxKxfQA6DP4rq2UWc"
+
 
 def get_ma15(ticker):
     """15일 이동 평균선 조회"""
@@ -15,11 +17,13 @@ def get_ma15(ticker):
     ma5=df['close'].rolling(5).mean().iloc[-1]
     return ma15 <= ma5 * 1.08
 
+
 KST=timezone('Asia/Seoul')
 now =datetime.datetime.utcnow()
 utc.localize(now)
 KST.localize(now)
 utc.localize(now).astimezone(KST)
+
 
 predicted_close_price = [0,0,0,0,0,0,0]
 predicted_max_price = [0,0,0,0,0,0,0]
@@ -39,6 +43,7 @@ def predict_price(ticker, num):
     predicted_max_price[num] = forecast[1200:]['yhat'].max()
     predicted_min_price[num] = forecast[1200:]['yhat'].min()
 
+
 predict_price("KRW-MATIC",0)
 predict_price("KRW-AQT",1)
 predict_price("KRW-ETH",2)
@@ -47,6 +52,7 @@ predict_price("KRW-STX",4)
 predict_price("KRW-XRP",5)
 predict_price("KRW-DOGE",6)
 
+
 schedule.every(3).minutes.do(predict_price, "KRW-MATIC", 0)
 schedule.every(3).minutes.do(predict_price,"KRW-AQT", 1)
 schedule.every(3).minutes.do(predict_price, "KRW-ETH", 2)
@@ -54,6 +60,7 @@ schedule.every(3).minutes.do(predict_price,"KRW-POWR", 3)
 schedule.every(3).minutes.do(predict_price,"KRW-STX", 4)
 schedule.every(3).minutes.do(predict_price,"KRW-XRP", 5)
 schedule.every(3).minutes.do(predict_price,"KRW-DOGE", 6)
+
 
 def getTotal():
     aqt = upbit.get_balance("KRW-AQT") * upbit.get_avg_buy_price("KRW-AQT")
@@ -65,6 +72,7 @@ def getTotal():
     doge = upbit.get_balance("KRW-DOGE") * upbit.get_avg_buy_price("KRW-DOGE")
     return upbit.get_balance("KRW")+aqt+matic+eth+powr+stx+xrp+doge
 
+
 def startGamble(name):
     try:
         current_price = pyupbit.get_current_price(name)   
@@ -74,21 +82,25 @@ def startGamble(name):
         for n in name:
             krw = upbit.get_balance("KRW")
             if upbit.get_balance(n) == 0:
-                if current_price[n]*1.005 < predicted_min_price[i]and current_price[n]*1.01 < predicted_max_price[i] and get_ma15(n) and krw > 5000:
+                if current_price[n]*1.007 < predicted_min_price[i] and current_price[n]*1.012 < predicted_max_price[i] and get_ma15(n) and krw > 5000:
                     upbit.buy_market_order(n, total*0.33)
         
-            elif ((upbit.get_avg_buy_price(n) * 1.009 < current_price[n] and current_price[n]*0.995 > predicted_min_price[i])
-             or upbit.get_avg_buy_price(n) * 0.995 > current_price[n]):
+            elif ((upbit.get_avg_buy_price(n) * 1.01 < current_price[n] and current_price[n]*0.995 > predicted_min_price[i])
+             or upbit.get_avg_buy_price(n) * 0.99 > current_price[n]):
                 upbit.sell_market_order(n, upbit.get_balance(n))
 
+
             i=i+1
+
 
     except Exception as e:
         print(e)
         time.sleep(1)
 
+
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
+
 
 # 자동매매 시작
 while True:
