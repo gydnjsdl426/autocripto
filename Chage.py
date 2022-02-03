@@ -39,7 +39,7 @@ while True:
         all = pyupbit.get_current_price(tickers)
         total = get_total()
         krw = upbit.get_balance("KRW") * 0.097
-        if start_time < now < end_time - datetime.timedelta(seconds=10):
+        if start_time < now < end_time - datetime.timedelta(seconds=120):
             for ticker in tickers:
                 target_price = get_target_price(ticker, 1.1)
                 time.sleep(0.07)
