@@ -39,18 +39,20 @@ while True:
         all = pyupbit.get_current_price(tickers)
         total = get_total()
         krw = upbit.get_balance("KRW") * 0.097
-        if start_time < now < end_time - datetime.timedelta(seconds=30):
+        if start_time < now < end_time - datetime.timedelta(seconds=60):
             for ticker in tickers:
-                target_price = get_target_price(ticker, 1)
-                time.sleep(0.1)
-                print(ticker, target_price, all[ticker])
-                if target_price < all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                target_price = get_target_price(ticker, 0.9)
+                time.sleep(0.12)
+                if target_price < all[ticker] and target_price > all[ticker]*1.03 and krw > 5000 and upbit.get_balance(ticker) == 0:
                     upbit.buy_market_order(ticker, total*0.097)
+                
+                elif upbit.get_avg_buy_price(ticker) * 1.4 > all[ticker] and upbit.get_balance(ticker) != 0:
+                    upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
         else:
-            for ticker1 in tickers:
-                if upbit.get_balance(ticker1) != 0:
-                    upbit.sell_market_order(ticker1, upbit.get_balance(ticker1))
+            for ticker in tickers:
+                if upbit.get_balance(ticker) != 0:
+                    upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
         time.sleep(1)
     except Exception as e:
