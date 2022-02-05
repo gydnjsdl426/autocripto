@@ -40,7 +40,7 @@ def update_target():
             i += 1
         except Exception as e:
             print(e)
-            time.sleep(1)
+            time.sleep(0.7)
 
     return target_prices
 
@@ -60,10 +60,10 @@ while True:
         i=0
         if start_time < now < end_time - datetime.timedelta(seconds=60):
             for ticker in tickers:
-                if target_prices[i] < all[ticker] and target_prices[i] * 1.02 > all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                if target_prices[i] < all[ticker] and target_prices[i] * 1.15 > all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                     upbit.buy_market_order(ticker, total*0.197)
                 
-                elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
+                elif upbit.get_avg_buy_price(ticker) * 1.4 < all[ticker] and upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                 i+=1
@@ -75,7 +75,7 @@ while True:
             
             target_prices=update_target()
 
-        time.sleep(1)
+        time.sleep(0.1)
     except Exception as e:
         print(e)
-        time.sleep(1)
+        time.sleep(0.5)
