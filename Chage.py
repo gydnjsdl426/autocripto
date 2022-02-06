@@ -88,7 +88,7 @@ while True:
         i=0
         if start_time < now < end_time - datetime.timedelta(seconds=180):
             for ticker in tickers:
-                if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.1 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.05 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                     upbit.buy_market_order(ticker, total*0.097)
 
                 elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
