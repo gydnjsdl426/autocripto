@@ -86,7 +86,7 @@ while True:
         total = get_total()
         krw = upbit.get_balance("KRW")
         i=0
-        if start_time < now < end_time - datetime.timedelta(seconds=180):
+        if start_time + datetime.timedelta(minutes=2) < now < end_time:
             for ticker in tickers:
                 if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.05 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                     upbit.buy_market_order(ticker, total*0.097)
