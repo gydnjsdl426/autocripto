@@ -83,13 +83,23 @@ while True:
             tickers.append(target_prices[i]['ticker'])
 
         all = pyupbit.get_current_price(tickers)
+
+        # j=0
+        # cnt=0
+        # for ticker in tickers:
+        #     print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
+        #     if(all[ticker]>target_prices[j]['price']):
+        #         cnt+=1
+        #     j+=1
+
+        # print(cnt)
         total = get_total()
         krw = upbit.get_balance("KRW")
         i=0
-        if start_time + datetime.timedelta(minutes=2) < now < end_time:
+        if start_time + datetime.timedelta(minutes=4) < now < end_time + datetime.timedelta(minutes=1):
             for ticker in tickers:
                 if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.05 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
-                    upbit.buy_market_order(ticker, total*0.097)
+                    upbit.buy_market_order(ticker, total*0.123)
 
                 elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
