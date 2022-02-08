@@ -2,6 +2,7 @@ import time
 import pyupbit
 import datetime
 import numpy as np
+import schedule
 
 access = "KHTqX6NbkdKaY7saJo40FCjRF8zhLvB2WkADnajD"
 secret = "vIIe18R6kquGERglLWfKSC5UxKxfQA6DP4rq2UWc"
@@ -70,24 +71,16 @@ def update_target():
     return target_prices
 
 target_prices=update_target()
-possess = {}
-cnt=0
+schedule.every(2).hours.do(update_target)
 
 # 자동매매 시작
 while True:
+    schedule.run_pending()
     try:
+        now = datetime.datetime.now()
         start_time = get_start_time("KRW-BTC")
         end_time = start_time + datetime.timedelta(days=1)
-        now = datetime.datetime.now()
-
-        # j=0
-        # cnt=0
-        # for ticker in tickers:
-        #     print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
-        #     if(all[ticker]>target_prices[j]['price']):
-        #         cnt+=1
-        #     j+=1
-        # print(cnt)
+        
         tickers = []
         for i in np.arange(0,15):
             tickers.append(target_prices[i]['ticker'])
@@ -95,38 +88,21 @@ while True:
         total = get_total()
         krw = upbit.get_balance("KRW")
         i=0
-        if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=10):
+        
+        if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=12):
             for ticker in tickers:
-                if cnt < 8:
-                    if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
-                        upbit.buy_market_order(ticker, total*0.124)
-                        possess[i]=ticker
-                        cnt+=1
+                if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                    upbit.buy_market_order(ticker, total*0.123)
 
-                    elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
-                        upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-
-                    i+=1
-                else:
-                    if i < min(possess.keys()) and target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and upbit.get_balance(ticker) == 0:
-                        upbit.sell_market_order(possess[min(possess.keys())])
-                        upbit.buy_market_order(ticker, total*0.124)
-                        del possess[min(possess.keys())]
-                        possess[i]=ticker
-
-                    elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
-                        upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-
-                    i+=1
+                elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
+                    upbit.sell_market_order(ticker, upbit.get_balance(ticker))
+                i+=1
 
         else:
             for ticker in tickers:
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-            
             target_prices=update_target()
-            possess = {}
-            cnt=0
 
         time.sleep(0.05)
     except Exception as e:
