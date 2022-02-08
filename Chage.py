@@ -68,9 +68,9 @@ def update_target():
         target_prices.append({'ticker':data[i]['ticker'],'price':get_target_price(data[i]['ticker'],data[i]['index'])})
 
 update_target()
-possess = {}
-
 schedule.every().day.at("09:30").do(update_target)
+
+possess = {}
 cnt=0
 
 # 자동매매 시작
@@ -126,11 +126,10 @@ while True:
             for ticker in tickers:
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-            
-            update_target()
             possess = {}
             cnt=0
-
+            update_target()
+            
         time.sleep(0.05)
     except Exception as e:
         print(e)
