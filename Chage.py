@@ -116,7 +116,7 @@ while True:
                         del possess[min(possess.keys())]
                         possess[i]=ticker
 
-                    elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
+                    elif (upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.97 > all[ticker]) and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
