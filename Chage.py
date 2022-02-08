@@ -81,26 +81,27 @@ while True:
         end_time = start_time + datetime.timedelta(days=1)
         now = datetime.datetime.now()
 
-        j=0
-        cnt=0
-        for ticker in tickers:
-            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
-            if(all[ticker]>target_prices[j]['price']):
-                cnt+=1
-            j+=1
-        print(cnt)
-        
         tickers = []
         for i in np.arange(0,15):
             tickers.append(target_prices[i]['ticker'])
         all = pyupbit.get_current_price(tickers)
         total = get_total()
         krw = upbit.get_balance("KRW")
+
+        j=0
+        cnt1=0
+        for ticker in tickers:
+            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
+            if(all[ticker]>target_prices[j]['price']):
+                cnt1+=1
+            j+=1
+        print(cnt1)
+        
         i=0
         if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=10):
             for ticker in tickers:
                 if cnt < 8:
-                    if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                    if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.01 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                         upbit.buy_market_order(ticker, total*0.124)
                         possess[i]=ticker
                         cnt+=1
@@ -110,7 +111,7 @@ while True:
 
                     i+=1
                 else:
-                    if i < min(possess.keys()) and target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and upbit.get_balance(ticker) == 0:
+                    if i < min(possess.keys()) and target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.01 >= all[ticker] and upbit.get_balance(ticker) == 0:
                         upbit.sell_market_order(possess[min(possess.keys())])
                         upbit.buy_market_order(ticker, total*0.124)
                         del possess[min(possess.keys())]
