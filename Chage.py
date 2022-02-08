@@ -86,26 +86,30 @@ while True:
         krw = upbit.get_balance("KRW")
         i=0
 
-        # j=0
-        # cnt=0
-        # for ticker in tickers:
-        #     print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
-        #     if(all[ticker]>target_prices[j]['price']):
-        #         cnt+=1
-        #     j+=1
-        # print(cnt)
+        j=0
+        cnt=0
+        for ticker in tickers:
+            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
+            if(all[ticker]>target_prices[j]['price']):
+                cnt+=1
+            j+=1
+        print(cnt)
 
         if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=12):
+            print('in1')
             for ticker in tickers:
                 if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
+                    print('in2')
                     upbit.buy_market_order(ticker, total*0.123)
 
                 elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
+                    print('in3')
                 i+=1
 
         else:
             for ticker in tickers:
+                print('in4')
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
             update_target()
