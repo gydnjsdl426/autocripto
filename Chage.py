@@ -2,7 +2,6 @@ import time
 import pyupbit
 import datetime
 import numpy as np
-import schedule
 
 access = "KHTqX6NbkdKaY7saJo40FCjRF8zhLvB2WkADnajD"
 secret = "vIIe18R6kquGERglLWfKSC5UxKxfQA6DP4rq2UWc"
@@ -72,13 +71,10 @@ def update_target():
 
 target_prices=update_target()
 possess = {}
-
-#schedule.every(2).hours.do(update_target)
 cnt=0
 
 # 자동매매 시작
 while True:
-    #schedule.run_pending()
     try:
         start_time = get_start_time("KRW-BTC")
         end_time = start_time + datetime.timedelta(days=1)
