@@ -88,14 +88,14 @@ while True:
         total = get_total()
         krw = upbit.get_balance("KRW")
 
-        j=0
-        cnt1=0
-        for ticker in tickers:
-            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
-            if(all[ticker]>target_prices[j]['price']):
-                cnt1+=1
-            j+=1
-        print(cnt1)
+        # j=0
+        # cnt1=0
+        # for ticker in tickers:
+        #     print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
+        #     if(all[ticker]>target_prices[j]['price']):
+        #         cnt1+=1
+        #     j+=1
+        # print(cnt1)
 
         i=0
         if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=10):
