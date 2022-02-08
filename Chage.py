@@ -51,10 +51,9 @@ def get_ror(ticker):
     map['value']=max(ror)
     return map
 
+target_prices=[]
 def update_target():
     tickers = pyupbit.get_tickers(fiat="KRW")
- 
-    target_prices=[]
     maps=[]
     for ticker in tickers:
         try:
@@ -68,19 +67,17 @@ def update_target():
     for i in np.arange(0,15):
         target_prices.append({'ticker':data[i]['ticker'],'price':get_target_price(data[i]['ticker'],data[i]['index'])})
 
-    return target_prices
-
-target_prices=update_target()
-schedule.every().day.at("9:30").do(update_target)
+update_target()
+schedule.every().day.at("09:30").do(update_target)
 
 # 자동매매 시작
 while True:
     schedule.run_pending()
     try:
-        now = datetime.datetime.now()
         start_time = get_start_time("KRW-BTC")
         end_time = start_time + datetime.timedelta(days=1)
-        
+        now = datetime.datetime.now()
+
         tickers = []
         for i in np.arange(0,15):
             tickers.append(target_prices[i]['ticker'])
@@ -88,7 +85,16 @@ while True:
         total = get_total()
         krw = upbit.get_balance("KRW")
         i=0
-        
+
+        j=0
+        cnt=0
+        for ticker in tickers:
+            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
+            if(all[ticker]>target_prices[j]['price']):
+                cnt+=1
+            j+=1
+        print(cnt)
+
         if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=12):
             for ticker in tickers:
                 if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
@@ -102,7 +108,7 @@ while True:
             for ticker in tickers:
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-            target_prices=update_target()
+            update_target()
 
         time.sleep(0.05)
     except Exception as e:
