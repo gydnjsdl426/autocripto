@@ -71,7 +71,7 @@ def update_target():
     return target_prices
 
 target_prices=update_target()
-schedule.every(2).hours.do(update_target)
+schedule.every().day.at("9:30").do(update_target)
 
 # 자동매매 시작
 while True:
