@@ -73,12 +73,12 @@ def update_target():
 target_prices=update_target()
 possess = {}
 
-schedule.every(2).hours.do(update_target)
+#schedule.every(2).hours.do(update_target)
 cnt=0
 
 # 자동매매 시작
 while True:
-    schedule.run_pending()
+    #schedule.run_pending()
     try:
         start_time = get_start_time("KRW-BTC")
         end_time = start_time + datetime.timedelta(days=1)
