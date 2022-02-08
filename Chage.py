@@ -71,14 +71,6 @@ def update_target():
     return target_prices
 
 target_prices=update_target()
-tickers = []
-for i in np.arange(0,15):
-    tickers.append(target_prices[i]['ticker'])
-all = pyupbit.get_current_price(tickers)
-
-start_time = get_start_time("KRW-BTC")
-end_time = start_time + datetime.timedelta(days=1)
-
 schedule.every(2).hours.do(update_target)
 
 # 자동매매 시작
@@ -86,19 +78,17 @@ while True:
     schedule.run_pending()
     try:
         now = datetime.datetime.now()
-
-        j=0
-        cnt=0
-        for ticker in tickers:
-            print('ticker :',ticker, 'cur_price :',all[ticker],'tar_price :',target_prices[j]['price'])
-            if(all[ticker]>target_prices[j]['price']):
-                cnt+=1
-            j+=1
-        print(cnt)
-
+        start_time = get_start_time("KRW-BTC")
+        end_time = start_time + datetime.timedelta(days=1)
+        
+        tickers = []
+        for i in np.arange(0,15):
+            tickers.append(target_prices[i]['ticker'])
+        all = pyupbit.get_current_price(tickers)
         total = get_total()
         krw = upbit.get_balance("KRW")
         i=0
+        
         if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=12):
             for ticker in tickers:
                 if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
@@ -106,19 +96,13 @@ while True:
 
                 elif upbit.get_avg_buy_price(ticker) * 1.3 < all[ticker] and upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-
                 i+=1
 
         else:
             for ticker in tickers:
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-            
             target_prices=update_target()
-            tickers = []
-            for i in np.arange(0,15):
-                tickers.append(target_prices[i]['ticker'])
-            all = pyupbit.get_current_price(tickers)
 
         time.sleep(0.05)
     except Exception as e:
