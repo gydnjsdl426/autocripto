@@ -54,6 +54,7 @@ def get_ror(ticker):
 target_prices=[]
 def update_target():
     tickers = pyupbit.get_tickers(fiat="KRW")
+    target_prices=[]
     maps=[]
     for ticker in tickers:
         try:
@@ -68,7 +69,7 @@ def update_target():
         target_prices.append({'ticker':data[i]['ticker'],'price':get_target_price(data[i]['ticker'],data[i]['index'])})
 
 update_target()
-schedule.every().day.at("09:30").do(update_target)
+schedule.every(1).hours.do(update_target)
 
 possess = {}
 cnt=0
@@ -98,14 +99,14 @@ while True:
         # print(cnt1)
 
         i=0
-        if start_time + datetime.timedelta(minutes=15) < now < end_time + datetime.timedelta(minutes=10):
+        if start_time < now < end_time - datetime.timedelta(minutes=2):
             for ticker in tickers:
                 if cnt < 7:
                     if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                         upbit.buy_market_order(ticker, total*0.142)
                         possess[i]=ticker
 
-                    elif (upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.97 > all[ticker]) and upbit.get_balance(ticker) != 0:
+                    elif upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
@@ -116,7 +117,7 @@ while True:
                         del possess[min(possess.keys())]
                         possess[i]=ticker
 
-                    elif (upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.97 > all[ticker]) and upbit.get_balance(ticker) != 0:
+                    elif upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
@@ -126,7 +127,6 @@ while True:
                 if upbit.get_balance(ticker) != 0:
                     upbit.sell_market_order(ticker, upbit.get_balance(ticker))
             possess = {}
-            update_target()
             
         time.sleep(0.05)
     except Exception as e:
