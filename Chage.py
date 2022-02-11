@@ -51,10 +51,11 @@ def get_ror(ticker):
     map['value']=max(ror)
     return map
 
-target_prices=[]
 def update_target():
     tickers = pyupbit.get_tickers(fiat="KRW")
-    target_prices=[]
+    global target_prices
+    target_prices = []
+
     maps=[]
     for ticker in tickers:
         try:
@@ -101,9 +102,9 @@ while True:
         i=0
         if start_time < now < end_time - datetime.timedelta(minutes=2):
             for ticker in tickers:
-                if cnt < 7:
+                if cnt < 5:
                     if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
-                        upbit.buy_market_order(ticker, total*0.142)
+                        upbit.buy_market_order(ticker, total*0.199)
                         possess[i]=ticker
 
                     elif upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] and upbit.get_balance(ticker) != 0:
@@ -113,7 +114,7 @@ while True:
                 else:
                     if i < min(possess.keys()) and target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and upbit.get_balance(ticker) == 0:
                         upbit.sell_market_order(possess[min(possess.keys())])
-                        upbit.buy_market_order(ticker, total*0.124)
+                        upbit.buy_market_order(ticker, total*0.199)
                         del possess[min(possess.keys())]
                         possess[i]=ticker
 
