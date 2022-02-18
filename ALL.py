@@ -64,7 +64,7 @@ while True:
                 if krw > 5000:
                     upbit.buy_market_order(ticker, total*0.245)
 
-            elif upbit.get_balance(ticker) != 0 and not(upbit.get_avg_buy_price(ticker) * 0.995 < all[ticker] < upbit.get_avg_buy_price(ticker) * 1.007):
+            elif upbit.get_balance(ticker) != 0 and not(upbit.get_avg_buy_price(ticker) * 0.992 < all[ticker] < upbit.get_avg_buy_price(ticker) * 1.006):
                 upbit.sell_market_order(ticker, upbit.get_balance(ticker))
             time.sleep(0.08)
             
