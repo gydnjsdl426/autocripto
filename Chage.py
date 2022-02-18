@@ -102,11 +102,11 @@ while True:
         i=0
         if start_time < now < end_time - datetime.timedelta(minutes=2):
             for ticker in TICKERS:
-                if cnt < 5:
+                if cnt < 2:
                     if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.03 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
                         upbit.buy_market_order(ticker, total*0.199)
 
-                    elif upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] and upbit.get_balance(ticker) != 0:
+                    elif (upbit.get_avg_buy_price(ticker) * 1.05 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.96 > all[ticker]) and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
@@ -116,7 +116,7 @@ while True:
                         time.sleep(0.3)
                         upbit.buy_market_order(ticker, total*0.199)
 
-                    elif upbit.get_avg_buy_price(ticker) * 1.15 < all[ticker] and upbit.get_balance(ticker) != 0:
+                    elif (upbit.get_avg_buy_price(ticker) * 1.05 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.96 > all[ticker]) and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
