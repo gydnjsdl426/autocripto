@@ -60,8 +60,8 @@ while True:
 
         for ticker in TICKERS:
             krw = upbit.get_balance("KRW")
-            if get_ma(ticker) and all[ticker] > mean20 and upbit.get_balance(ticker) == 0:
-                if krw > 5000:
+            if get_ma(ticker) and all[ticker] > mean20:
+                if krw > 5000 and upbit.get_balance(ticker) == 0:
                     upbit.buy_market_order(ticker, total*0.245)
 
             elif upbit.get_balance(ticker) != 0 and not(upbit.get_avg_buy_price(ticker) * 0.992 < all[ticker] < upbit.get_avg_buy_price(ticker) * 1.006):
