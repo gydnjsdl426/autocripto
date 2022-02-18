@@ -28,6 +28,16 @@ def get_total():
         total = float(total) + float(balance['balance']) * float(balance['avg_buy_price'])
     return total
 
+def get_ma(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="day", count=12)
+    sum=0
+    for i in np.arange(0,7):
+        sum+=df['close'][i:5+i].rolling(5).mean().iloc[-1]
+
+    mean=sum/7
+    ma5=df['close'].rolling(5).mean().iloc[-1]
+    return mean < ma5
+
 def get_ror(ticker):
     df = pyupbit.get_ohlcv(ticker, interval = "day", count=7)
     ror=[]
@@ -57,14 +67,15 @@ def update_target():
     maps=[]
     for ticker in tickers:
         try:
-            maps.append(get_ror(ticker))
+            if get_ma(ticker):
+                maps.append(get_ror(ticker))
             time.sleep(0.1)
         except Exception as e:
             print(e)
             time.sleep(0.7)
 
     data = sorted(maps,key= lambda v:(v['value']),reverse=True)
-    for i in np.arange(0,15):
+    for i in np.arange(0,7):
         target_prices.append({'ticker':data[i]['ticker'],'price':get_target_price(data[i]['ticker'],data[i]['index'])})
         TICKERS.append(target_prices[i]['ticker'])
 
@@ -72,7 +83,9 @@ def update_possess():
     global possess
     possess = {}
     balances=upbit.get_balances()
-    for ticker in balances[2:]:
+    for ticker in balances:
+        if ticker['currency'] == 'VTHO' or ticker['currency'] == 'KRW':
+            continue
         possess[TICKERS.index('KRW-'+ticker['currency'])]='KRW-'+ticker['currency']
 
 update_target()
@@ -102,21 +115,23 @@ while True:
         i=0
         if start_time < now < end_time - datetime.timedelta(minutes=2):
             for ticker in TICKERS:
-                if cnt < 2:
-                    if target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.015 >= all[ticker] and krw > 5000 and upbit.get_balance(ticker) == 0:
-                        upbit.buy_market_order(ticker, total*0.199)
+                if cnt < 3:
+                    if target_prices[i]['price'] <= all[ticker] < target_prices[i]['price'] * 1.015 and krw > 5000 and upbit.get_balance(ticker) == 0:
+                        upbit.buy_market_order(ticker, total*0.333)
+                        update_possess()
+                        cnt+=1
 
-                    elif (upbit.get_avg_buy_price(ticker) * 1.05 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.96 > all[ticker]) and upbit.get_balance(ticker) != 0:
+                    elif not(upbit.get_avg_buy_price(ticker) * 0.965 < all[ticker] < upbit.get_avg_buy_price(ticker)*1.05) and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
                 else:
-                    if i < max(possess.keys()) and target_prices[i]['price'] <= all[ticker] and target_prices[i]['price'] * 1.015 >= all[ticker] and upbit.get_balance(ticker) == 0:
-                        upbit.sell_market_order(possess[max(possess.keys())])
+                    if i < max(possess.keys()) and target_prices[i]['price'] <= all[ticker] < target_prices[i]['price'] * 1.015 and upbit.get_balance(ticker) == 0:
+                        upbit.sell_market_order(possess[max(possess.keys())], upbit.get_balance(possess[max(possess.keys())]))
                         time.sleep(0.3)
-                        upbit.buy_market_order(ticker, total*0.199)
+                        upbit.buy_market_order(ticker, total*0.333)
 
-                    elif (upbit.get_avg_buy_price(ticker) * 1.05 < all[ticker] or upbit.get_avg_buy_price(ticker) * 0.96 > all[ticker]) and upbit.get_balance(ticker) != 0:
+                    elif not(upbit.get_avg_buy_price(ticker) * 0.965 < all[ticker] < upbit.get_avg_buy_price(ticker)*1.05) and upbit.get_balance(ticker) != 0:
                         upbit.sell_market_order(ticker, upbit.get_balance(ticker))
 
                     i+=1
