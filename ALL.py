@@ -49,7 +49,7 @@ def get_ma(ticker):
     print(mean20)
     print(ma5)
 
-    return mean20 < ma5 < mean20*0.01
+    return mean20 < ma5 < mean20*1.01
 
 while True:
     schedule.run_pending()
