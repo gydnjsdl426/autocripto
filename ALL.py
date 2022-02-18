@@ -25,14 +25,14 @@ def update():
         df = pyupbit.get_ohlcv(ticker, interval = "day", count=3)
         df['range'] = df['high'] / df['low']
         d = df['range'].rolling(3).mean().iloc[-1]
-        if d > 1.095:
+        if d > 1.1:
             data.append(d)
             TICKERS.append(ticker)
 
         time.sleep(0.1)
 
 update()
-schedule.every(1).hours.do(update)
+schedule.every(2).hours.do(update)
 
 mean20 = 0
 ma5= 0
@@ -45,9 +45,9 @@ def get_ma(ticker):
     mean20=sum/20
     ma5=df['close'].rolling(5).mean().iloc[-1]
 
-    print(ticker)
-    print(mean20)
-    print(ma5)
+    # print(ticker)
+    # print(mean20)
+    # print(ma5)
 
     return mean20 < ma5 < mean20*1.01
 
@@ -56,15 +56,14 @@ while True:
     try:
         all = pyupbit.get_current_price(TICKERS)
         total = get_total()
-        
-
+    
         for ticker in TICKERS:
             krw = upbit.get_balance("KRW")
             if get_ma(ticker):
                 if krw > 5000 and upbit.get_balance(ticker) == 0:
-                    upbit.buy_market_order(ticker, total*0.245)
+                    upbit.buy_market_order(ticker, total*0.197)
 
-            elif upbit.get_balance(ticker) != 0 and not(upbit.get_avg_buy_price(ticker) * 0.992 < all[ticker] < upbit.get_avg_buy_price(ticker) * 1.006):
+            elif upbit.get_balance(ticker) != 0 and (upbit.get_avg_buy_price(ticker) * 0.992 > all[ticker] or 0.992 < all[ticker] > upbit.get_avg_buy_price(ticker) * 1.006):
                 upbit.sell_market_order(ticker, upbit.get_balance(ticker))
             time.sleep(0.07)
             
