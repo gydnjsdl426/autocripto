@@ -11,6 +11,11 @@ upbit = pyupbit.Upbit(access, secret)
 tickers = pyupbit.get_tickers(fiat="KRW")
 print("autotrade start")
 
+def get_start_time(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="day", count=1)
+    start_time = df.index[0]
+    return start_time
+
 def get_total():
     balances = upbit.get_balances()
     total = float(balances[0]['balance'])
@@ -56,16 +61,26 @@ while True:
     try:
         all = pyupbit.get_current_price(TICKERS)
         total = get_total()
-    
-        for ticker in TICKERS:
-            krw = upbit.get_balance("KRW")
-            if get_ma(ticker):
-                if krw > 5000 and upbit.get_balance(ticker) == 0:
-                    upbit.buy_market_order(ticker, total*0.197)
+        start_time = get_start_time("KRW-BTC") + datetime.timedelta(minutes=30)
+        end_time = start_time + datetime.timedelta(days=1) - datetime.timedelta(minutes=1)
+        now = datetime.datetime.now()
 
-            elif upbit.get_balance(ticker) != 0 and (upbit.get_avg_buy_price(ticker) * 0.992 > all[ticker] or 0.992 < all[ticker] > upbit.get_avg_buy_price(ticker) * 1.006):
-                upbit.sell_market_order(ticker, upbit.get_balance(ticker))
-            time.sleep(0.07)
+        if start_time < now < end_time:
+            for ticker in TICKERS:
+                krw = upbit.get_balance("KRW")
+                if get_ma(ticker):
+                    if krw > 5000 and upbit.get_balance(ticker) == 0:
+                        upbit.buy_market_order(ticker, total*0.197)
+
+                elif upbit.get_balance(ticker) != 0 and (upbit.get_avg_buy_price(ticker) * 0.993 > all[ticker] or all[ticker] > upbit.get_avg_buy_price(ticker) * 1.002):
+                    upbit.sell_market_order(ticker, upbit.get_balance(ticker))
+                time.sleep(0.07)
+        else:
+            for ticker in TICKERS:
+                if upbit.get_balance(ticker) != 0:
+                    upbit.sell_market_order(ticker, upbit.get_balance(ticker))
+
+            update()
             
     except Exception as e:
         print(e)
