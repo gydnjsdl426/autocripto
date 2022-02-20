@@ -56,10 +56,10 @@ def get_ma(ticker):
     # print(mean20)
     # print(ma5)
 
-    if inclination > 0 and ma5 >= ma20:
+    if inclination > 0 and ma5 >= ma20 * 0.995:
         return 1 # Buy
 
-    if inclination < 0 and ma5 <= ma20:
+    if inclination < 0 and ma5 <= ma20 * 1.005:
         return 0 # Sell
 
     else:
